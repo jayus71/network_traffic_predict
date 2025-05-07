@@ -10,29 +10,52 @@ data:
 # 特征工程配置
 features:
   sequence_length: 24
+  input_length: 96  # 输入序列长度
+  output_length: 1  # 输出序列长度（预测步长）
   lag_periods: [1, 2, 3, 24]
   window_sizes: [3, 6, 24]
   use_time_features: true
   use_lag_features: true
   use_window_features: true
+  # 新增降采样配置
+  downsample:
+    enabled: true
+    ratios: [1.0, 0.5, 0.25]  # 降采样比例，相对于input_length
 
 # 模型配置
 model:
-  type: "lstm"  # 'lstm', 'gru', 或 'cnn'
+  type: "ensemble"  # 'lstm', 'transformer', 'cnn', 或 'ensemble'
   hidden_size: 128
   num_layers: 4
   dropout: 0.2
   bidirectional: false
+  nhead: 8  # Transformer模型的注意力头数
+  # 新增融合模型配置
+  ensemble:
+    # 第一个子模型配置 (CNN)
+    cnn:
+      filters: 64
+      kernel_size: 3
+      num_layers: 3
+    # 第二个子模型配置 (LSTM)
+    lstm:
+      hidden_size: 128
+      num_layers: 2
+    # 第三个子模型配置 (Transformer)
+    transformer:
+      hidden_size: 128
+      num_layers: 2
+      nhead: 4
 
 # 训练配置
 training:
   batch_size: 32
   epochs: 100
   learning_rate: 0.0001
-  patience: 10
+  patience: 15
   model_dir: "models/"
   
 # 评估配置
 evaluation:
-  metrics: ["mae", "rmse", "r2", "mape"]
+  metrics: ["mse", "mae", "rmse", "r2", "mape"]
   visualization_dir: "reports/figures/"

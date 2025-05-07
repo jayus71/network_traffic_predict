@@ -44,7 +44,7 @@ def plot_time_series(df, time_col, value_col, title=None, figsize=(12, 6), save_
         plt.savefig(save_path)
         print(f"图像已保存到 {save_path}")
     
-    plt.show()
+    return plt.gcf()
 
 def plot_multiple_cells(df, cell_names, date_col='Date', hour_col='Hour', value_col='Traffic', figsize=(14, 8), save_path=None):
     """
@@ -93,7 +93,7 @@ def plot_multiple_cells(df, cell_names, date_col='Date', hour_col='Hour', value_
         plt.savefig(save_path)
         print(f"图像已保存到 {save_path}")
     
-    plt.show()
+    return plt.gcf()
 
 def plot_prediction_results(y_true, y_pred, title='预测结果对比', figsize=(12, 6), save_path=None):
     """
@@ -144,7 +144,7 @@ def plot_prediction_results(y_true, y_pred, title='预测结果对比', figsize=
         plt.savefig(save_path)
         print(f"图像已保存到 {save_path}")
     
-    plt.show()
+    return plt.gcf()
 
 def plot_loss_history(history, figsize=(10, 6), save_path=None):
     """
@@ -180,4 +180,4 @@ def plot_loss_history(history, figsize=(10, 6), save_path=None):
         plt.savefig(save_path)
         print(f"图像已保存到 {save_path}")
     
-    plt.show()
+    return plt.gcf()

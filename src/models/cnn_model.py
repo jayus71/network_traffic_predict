@@ -16,9 +16,11 @@ class CNNModel(nn.Module):
             kernel_size: 卷积核大小
             num_layers: 卷积层数量
             dropout: Dropout比率
-            output_size: 输出维度
+            output_size: 输出维度(预测步长)
         """
         super(CNNModel, self).__init__()
+        
+        self.output_size = output_size
         
         # 创建多层卷积层
         self.conv_layers = nn.ModuleList()
@@ -46,13 +48,16 @@ class CNNModel(nn.Module):
         # 计算卷积后的序列长度
         self.flattened_size = filters * (seq_length - num_layers * (kernel_size - 1))
         
-        self.fc_layers = nn.Sequential(
+        # 中间层
+        self.fc1 = nn.Sequential(
             nn.Flatten(),
             nn.Linear(self.flattened_size, 100),
             nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(100, output_size)
+            nn.Dropout(dropout)
         )
+        
+        # 输出层 - 单步或多步预测
+        self.fc2 = nn.Linear(100, 1)
         
     def forward(self, x):
         """
@@ -64,6 +69,8 @@ class CNNModel(nn.Module):
         返回:
             输出张量, shape [batch_size, output_size]
         """
+        batch_size = x.size(0)
+        
         # 调整输入形状以适应Conv1d [batch_size, input_size, seq_length]
         x = x.permute(0, 2, 1)
         
@@ -71,7 +78,18 @@ class CNNModel(nn.Module):
         for layer in self.conv_layers:
             x = layer(x)
         
-        # 全连接层
-        x = self.fc_layers(x)
+        # 共享特征提取
+        features = self.fc1(x)
         
-        return x
+        if self.output_size == 1:
+            # 单步预测
+            out = self.fc2(features)
+        else:
+            # 多步预测
+            outs = []
+            for _ in range(self.output_size):
+                step_out = self.fc2(features)
+                outs.append(step_out)
+            out = torch.cat(outs, dim=1)
+        
+        return out

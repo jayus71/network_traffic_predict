@@ -3,6 +3,10 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from .lstm_model import LSTMModel
+from .cnn_model import CNNModel
+from .transformer_model import TransformerModel
+from .ensemble_model import EnsembleModel
 
 def save_model(model, path):
     """
@@ -63,7 +67,13 @@ def evaluate_and_visualize(model, test_loader, device, scaler=None, save_path=No
     with torch.no_grad():
         for data, target in test_loader:
             # 将数据移动到设备
-            data, target = data.to(device), target.to(device)
+            if isinstance(data, list):
+                # 集成模型的情况
+                data = [d.to(device) for d in data]
+            else:
+                data = data.to(device)
+                
+            target = target.to(device)
             
             # 前向传播
             output = model(data)
@@ -122,3 +132,70 @@ def evaluate_and_visualize(model, test_loader, device, scaler=None, save_path=No
     plt.show()
     
     return metrics, (all_preds, all_targets)
+
+def create_model(model_type, input_size, seq_length=24, output_size=1, config=None):
+    """
+    创建模型
+    
+    参数:
+        model_type: 模型类型 ('lstm', 'cnn', 'transformer', 或 'ensemble')
+        input_size: 输入特征维度
+        seq_length: 输入序列长度
+        output_size: 输出维度
+        config: 模型配置
+        
+    返回:
+        创建的模型实例
+    """
+    if config is None:
+        config = {}
+    
+    if model_type == 'lstm':
+        return LSTMModel(
+            input_size=input_size,
+            hidden_size=config.get('hidden_size', 64),
+            num_layers=config.get('num_layers', 2),
+            dropout=config.get('dropout', 0.2),
+            output_size=output_size
+        )
+    elif model_type == 'cnn':
+        return CNNModel(
+            input_size=input_size,
+            seq_length=seq_length,
+            filters=config.get('filters', 64),
+            kernel_size=config.get('kernel_size', 3),
+            num_layers=config.get('num_layers', 3),
+            dropout=config.get('dropout', 0.2),
+            output_size=output_size
+        )
+    elif model_type == 'transformer':
+        return TransformerModel(
+            input_size=input_size,
+            hidden_size=config.get('hidden_size', 64),
+            num_layers=config.get('num_layers', 2),
+            nhead=config.get('nhead', 4),
+            dropout=config.get('dropout', 0.2),
+            output_size=output_size
+        )
+    elif model_type == 'ensemble':
+        # 获取集成模型配置
+        ensemble_config = config.get('ensemble', {})
+        
+        # 获取降采样比例并计算实际序列长度
+        ratios = config.get('downsample', {}).get('ratios', [1.0, 0.5, 0.25])
+        seq_lengths = [max(int(seq_length * ratio), 1) for ratio in ratios]
+        seq_lengths = sorted(seq_lengths, reverse=True)  # 降序排列
+        
+        # 创建集成模型
+        return EnsembleModel(
+            input_size=input_size,
+            seq_lengths=seq_lengths,
+            hidden_size=config.get('hidden_size', 128),
+            cnn_config=ensemble_config.get('cnn'),
+            lstm_config=ensemble_config.get('lstm'),
+            transformer_config=ensemble_config.get('transformer'),
+            dropout=config.get('dropout', 0.2),
+            output_size=output_size
+        )
+    else:
+        raise ValueError(f"不支持的模型类型: {model_type}")

@@ -1,12 +1,19 @@
-数据文件: data/raw/split_quarter_data/2017_Q1_dataB_fill.csv
-模型类型: lstm
-隐藏层大小: 128
-层数: 4
-序列长度: 24
+数据文件: data/raw/split_quarter_data/2017_Q2_dataA_fill.csv
+城市: A
+模型类型: ensemble
+集成模型信息:
+  降采样比例: [1.0, 0.5, 0.25]
+  实际序列长度: [96, 48, 24]
+  子模型配置:
+    cnn: {'filters': 64, 'kernel_size': 3, 'num_layers': 3}
+    lstm: {'hidden_size': 128, 'num_layers': 2}
+    transformer: {'hidden_size': 128, 'num_layers': 2, 'nhead': 4}
+输入序列长度: 96
+输出序列长度: 1
 
 评估结果:
-测试损失: 0.0024
-MAE: 0.0748
-RMSE: 0.0968
-R²: 0.9430
-MAPE: 9.86%
+测试损失: 0.0027
+MAE: 0.3150
+RMSE: 0.3947
+R²: 0.9552
+MAPE: 10.92%

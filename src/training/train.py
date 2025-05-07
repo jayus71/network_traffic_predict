@@ -47,6 +47,10 @@ def train_model(model, train_loader, val_loader, device,
         'val_loss': []
     }
     
+    # 判断是否为集成模型（检查第一个批次的数据类型）
+    sample_batch = next(iter(train_loader))
+    is_ensemble = isinstance(sample_batch[0], list)
+    
     # 训练循环
     for epoch in range(epochs):
         # 训练阶段
@@ -55,7 +59,14 @@ def train_model(model, train_loader, val_loader, device,
         
         for batch_idx, (data, target) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")):
             # 将数据移动到设备
-            data, target = data.to(device), target.to(device)
+            if is_ensemble:
+                # 集成模型的情况，数据是列表
+                data = [d.to(device) for d in data]
+            else:
+                # 普通模型的情况，数据是张量
+                data = data.to(device)
+                
+            target = target.to(device)
             
             # 梯度清零
             optimizer.zero_grad()
@@ -86,7 +97,14 @@ def train_model(model, train_loader, val_loader, device,
         with torch.no_grad():
             for data, target in val_loader:
                 # 将数据移动到设备
-                data, target = data.to(device), target.to(device)
+                if is_ensemble:
+                    # 集成模型的情况
+                    data = [d.to(device) for d in data]
+                else:
+                    # 普通模型的情况
+                    data = data.to(device)
+                    
+                target = target.to(device)
                 
                 # 前向传播
                 output = model(data)
