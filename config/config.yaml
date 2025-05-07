@@ -1,0 +1,38 @@
+# 数据配置
+data:
+  combined_data_path: "data/raw/combined_data.csv"
+  city_data_path: "data/raw/dataA_fill.csv"
+  processed_data_dir: "data/processed/"
+  test_size: 0.2
+  val_size: 0.5
+  random_state: 42
+
+# 特征工程配置
+features:
+  sequence_length: 24
+  lag_periods: [1, 2, 3, 24]
+  window_sizes: [3, 6, 24]
+  use_time_features: true
+  use_lag_features: true
+  use_window_features: true
+
+# 模型配置
+model:
+  type: "lstm"  # 'lstm', 'gru', 或 'cnn'
+  hidden_size: 128
+  num_layers: 4
+  dropout: 0.2
+  bidirectional: false
+
+# 训练配置
+training:
+  batch_size: 32
+  epochs: 100
+  learning_rate: 0.0001
+  patience: 10
+  model_dir: "models/"
+  
+# 评估配置
+evaluation:
+  metrics: ["mae", "rmse", "r2", "mape"]
+  visualization_dir: "reports/figures/"
