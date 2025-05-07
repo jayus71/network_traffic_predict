@@ -25,6 +25,7 @@ from src.data.ensemble_loader import create_ensemble_dataloaders
 from src.training.train import train_model
 from src.training.evaluate import evaluate_model
 from src.utils.config import load_config
+from src.utils.seed_utils import set_seed
 
 def main():
     parser = argparse.ArgumentParser(description='网络流量预测训练')
@@ -44,10 +45,19 @@ def main():
                         help='输入序列长度(覆盖配置文件)')
     parser.add_argument('--output_length', type=int, default=None,
                         help='输出序列长度(覆盖配置文件)')
+    parser.add_argument('--seed', type=int, default=None,
+                        help='随机种子(覆盖配置文件)')
+    parser.add_argument('--deterministic', action='store_true',
+                        help='使用确定性算法（可能影响性能）')
     args = parser.parse_args()
     
     # 加载配置
     config = load_config(args.config)
+    
+    # 设置随机种子以确保可重现性
+    seed = args.seed if args.seed is not None else config.get('seed', {}).get('value', 42)
+    deterministic = args.deterministic if args.deterministic else config.get('seed', {}).get('deterministic', True)
+    set_seed(seed, deterministic)
     
     # 命令行参数覆盖配置文件
     if args.model_type:

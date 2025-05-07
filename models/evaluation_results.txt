@@ -3,17 +3,17 @@
 模型类型: ensemble
 集成模型信息:
   降采样比例: [1.0, 0.5, 0.25]
-  实际序列长度: [96, 48, 24]
+  实际序列长度: [24, 12, 6]
   子模型配置:
-    cnn: {'filters': 64, 'kernel_size': 3, 'num_layers': 3}
-    lstm: {'hidden_size': 128, 'num_layers': 2}
-    transformer: {'hidden_size': 128, 'num_layers': 2, 'nhead': 4}
-输入序列长度: 96
+    cnn: {'filters': 64, 'kernel_size': 3, 'num_layers': 4}
+    lstm: {'hidden_size': 128, 'num_layers': 4}
+    transformer: {'hidden_size': 128, 'num_layers': 4, 'nhead': 4}
+输入序列长度: 24
 输出序列长度: 1
 
 评估结果:
-测试损失: 0.0027
-MAE: 0.3150
-RMSE: 0.3947
-R²: 0.9552
-MAPE: 10.92%
+测试损失: 0.0038
+MAE: 0.3328
+RMSE: 0.4327
+R²: 0.9481
+MAPE: 8.36%

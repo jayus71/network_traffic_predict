@@ -4,13 +4,18 @@ data:
   city_data_path: "data/raw/dataA_fill.csv"
   processed_data_dir: "data/processed/"
   test_size: 0.2
-  val_size: 0.5
+  val_size: 0.4
   random_state: 42
+
+# 随机种子配置
+seed:
+  value: 42
+  deterministic: false  # 使用确定性算法（可能影响性能）
 
 # 特征工程配置
 features:
   sequence_length: 24
-  input_length: 96  # 输入序列长度
+  input_length: 24  # 输入序列长度
   output_length: 1  # 输出序列长度（预测步长）
   lag_periods: [1, 2, 3, 24]
   window_sizes: [3, 6, 24]
@@ -36,15 +41,15 @@ model:
     cnn:
       filters: 64
       kernel_size: 3
-      num_layers: 3
+      num_layers: 4
     # 第二个子模型配置 (LSTM)
     lstm:
       hidden_size: 128
-      num_layers: 2
+      num_layers: 4
     # 第三个子模型配置 (Transformer)
     transformer:
       hidden_size: 128
-      num_layers: 2
+      num_layers: 4
       nhead: 4
 
 # 训练配置
